@@ -2,7 +2,7 @@
 /*global module, require */
 'use strict';
 
-var Lexer = require('../src/lexer.js');
+var Lexer = require('..').Lexer;
 
 module.exports.getNextToken = {
   
