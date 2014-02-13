@@ -2,9 +2,10 @@
 /*global module, require, __dirname */
 'use strict';
 
-var sources ='/src';
+var sources = __dirname + '/src';
 if(process.env.YOURPACKAGE_COVERAGE) {
   sources += '-cov';
 }
 
-module.exports.Lexer = require(__dirname + sources + '/lexer.js');
+module.exports.Lexer = require(sources + '/lexer.js');
+module.exports.Expression = require(sources + '/expression.js');
