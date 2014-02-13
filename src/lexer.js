@@ -9,9 +9,11 @@ function Lexer(buffer) {
 
 var WHITESPACE  = /\s/,
     S_DIGIT     = /[\d\.]/,
+    S_COMPLEX_DIGIT = /[\d\.i]/,
+    COMPLEX     = /^(i[\d\.]+|[\d\.]+i)$/,
     NUMBER      = /^(\d*\.\d+|\d+)$/,
-    S_LETTER    = /[\wа-я]/,
-    LITERAL     = /^[\wа-я]+$/,
+    S_LETTER    = /[a-zа-я]/,
+    LITERAL     = /^[a-zа-я]+\d*$/,
     OPERATOR    = /^(\+|\-|\*|\/)$/,
     S_BRACKET   = /(\(|\[|\]|\))/,
     BRACKET     = /^(\(|\[|\]|\))$/;
@@ -30,16 +32,24 @@ Lexer.prototype.getNextToken = function() {
   var start = this.offset;
   
   if(S_DIGIT.test(this.buffer[this.offset])) {
-    while(this.offset < length && S_DIGIT.test(this.buffer[this.offset])) {
+    while(this.offset < length && S_COMPLEX_DIGIT.test(this.buffer[this.offset])) {
       ++this.offset;
     }
   }
-  else if(S_LETTER.test(this.buffer[this.offset])) {
+  else
+  if(this.offset < length - 1 && S_COMPLEX_DIGIT.test(this.buffer[this.offset]) && S_DIGIT.test(this.buffer[this.offset + 1])) {
+    while(this.offset < length && S_COMPLEX_DIGIT.test(this.buffer[this.offset])) {
+      ++this.offset;
+    }
+  }
+  else
+  if(S_LETTER.test(this.buffer[this.offset])) {
     while(this.offset < length && S_LETTER.test(this.buffer[this.offset])) {
       ++this.offset;
     }
   }
-  else if(S_BRACKET.test(this.buffer[this.offset])) {
+  else
+  if(S_BRACKET.test(this.buffer[this.offset])) {
     ++this.offset;
   }
   else {
@@ -62,9 +72,25 @@ Lexer.prototype.getTokenType = function(token) {
     throw new ReferenceError('getTokenType() failed: wrong input');
   }
   
+  if(token.text === 'i') {
+    return {
+      type: 'complex',
+      value: 1,
+      loc: token.loc
+    };
+  }
+  
+  if(COMPLEX.test(token.text)) {
+    return {
+      type: 'complex',
+      value: parseFloat(token.text.replace('i', '')),
+      loc: token.loc
+    };
+  }
+  
   if(NUMBER.test(token.text)) {
     return {
-      type: 'number',
+      type: 'constant',
       value: parseFloat(token.text),
       loc: token.loc
     };
