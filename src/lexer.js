@@ -126,4 +126,16 @@ Lexer.prototype.getTokenType = function(token) {
   throw error;
 };
 
+Lexer.prototype.tokens = function() {
+  var result = [],
+      token = this.getNextToken();
+  
+  while(token) {
+    result.push(this.getTokenType(token));
+    token = this.getNextToken();
+  }
+  
+  return result;
+};
+
 module.exports = Lexer;

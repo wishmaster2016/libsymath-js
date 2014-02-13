@@ -211,3 +211,23 @@ module.exports.getTokenType = {
   }
   
 };
+
+module.exports.tokens = function(test) {
+  var string = '((11 + 22i) / 55) * a',
+      tokens = new Lexer(string).tokens();
+  
+  test.strictEqual(tokens.length, 11);
+  test.strictEqual(tokens[0].type, 'bracket');
+  test.strictEqual(tokens[1].type, 'bracket');
+  test.strictEqual(tokens[2].type, 'constant');
+  test.strictEqual(tokens[3].type, 'operator');
+  test.strictEqual(tokens[4].type, 'complex');
+  test.strictEqual(tokens[5].type, 'bracket');
+  test.strictEqual(tokens[6].type, 'operator');
+  test.strictEqual(tokens[7].type, 'constant');
+  test.strictEqual(tokens[8].type, 'bracket');
+  test.strictEqual(tokens[9].type, 'operator');
+  test.strictEqual(tokens[10].type, 'literal');
+  
+  test.done();
+};
