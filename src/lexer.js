@@ -32,7 +32,7 @@ Lexer.prototype.getNextToken = function() {
   var start = this.offset;
   
   if(S_DIGIT.test(this.buffer[this.offset])) {
-    while(this.offset < length && S_COMPLEX_DIGIT.test(this.buffer[this.offset])) {
+    while(this.offset < length && (S_COMPLEX_DIGIT.test(this.buffer[this.offset]) || S_LETTER.test(this.buffer[this.offset]))) {
       ++this.offset;
     }
   }

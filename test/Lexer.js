@@ -7,7 +7,7 @@ var Lexer = require('..').Lexer;
 module.exports.getNextToken = {
   
   simple: function(test) {
-    var string = 'aaaa + бб   1(([',
+    var string = 'aaaa + бб   1(([ 2a',
         instance = new Lexer(string);
     
     var chunk = instance.getNextToken();
@@ -44,6 +44,11 @@ module.exports.getNextToken = {
     test.strictEqual(chunk.text, '[');
     test.strictEqual(chunk.loc.start, 15);
     test.strictEqual(chunk.loc.end, 16);
+    
+    chunk = instance.getNextToken();
+    test.strictEqual(chunk.text, '2a');
+    test.strictEqual(chunk.loc.start, 17);
+    test.strictEqual(chunk.loc.end, 19);
     
     chunk = instance.getNextToken();
     test.strictEqual(chunk, undefined);
@@ -111,7 +116,7 @@ module.exports.getNextToken = {
 module.exports.getTokenType = {
   
   simple: function(test) {
-    var string = 'aaaa + бб   11 ((] ++',
+    var string = 'aaaa + бб   11 ((] ++ 2a',
         instance = new Lexer(string);
     
     var token = instance.getNextToken(),
@@ -149,6 +154,11 @@ module.exports.getTokenType = {
     type  = instance.getTokenType(token);
     test.strictEqual(type.type, 'bracket');
     test.strictEqual(type.value, ']');
+    
+    token = instance.getNextToken();
+    test.throws(function() {
+      instance.getTokenType(token);
+    }, SyntaxError);
     
     token = instance.getNextToken();
     test.throws(function() {
