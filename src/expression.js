@@ -48,23 +48,6 @@ ExpressionTree.prototype.polishNotation = function(tokens) {
   return result;
 };
 
-ExpressionTree.prototype.toString = function(tokens) {
-  var result = '';
-  for(var i in tokens)
-    if((tokens[i].type === 'complex' || tokens[i].type === 'constant') && 
-        tokens[i].value === 0)
-      continue;
-    else if(tokens[i].type === 'complex') {
-      if(tokens[i].value === 1 || tokens[i].value === -1)
-        result += tokens[i].value.toString().substr(0, tokens[i].value.toString().length - 1) + 'i ';
-      else
-        result += tokens[i].value + 'i ';
-    }
-    else
-      result += tokens[i].value + ' ';
-  return result.substr(0, result.length - 1);
-};
-
 ExpressionTree.prototype.checkBrackets = function(tokens) {
   var depth = 0,
       i;
