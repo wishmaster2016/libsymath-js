@@ -37,8 +37,8 @@ ExpressionTree.prototype.polishNotation = function(tokens) {
             stack[stack.length - 1].value !== ')')
         if(stack[stack.length - 1].type !== 'bracket')
           result.push(stack.pop());
-        else
-          stack.pop();
+        //else
+        //  stack.pop();
       stack.pop();
       }
     }
