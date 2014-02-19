@@ -30,7 +30,13 @@ module.exports.checkBrackets = function(test) {
   expr = '(a + b)';
   test.strictEqual(tree.checkBrackets(new Lexer(expr).tokens()), true);
   
+  expr = 'f(a + b)';
+  test.strictEqual(tree.checkBrackets(new Lexer(expr).tokens()), true);
+  
   expr = '(a + b))';
+  test.strictEqual(tree.checkBrackets(new Lexer(expr).tokens()), false);
+  
+  expr = 'f(a + b))';
   test.strictEqual(tree.checkBrackets(new Lexer(expr).tokens()), false);
   
   test.done();
@@ -124,6 +130,27 @@ module.exports.polishNotation = function(test) {
   test.strictEqual(tokens[8].value, '+');
   test.strictEqual(tokens[9].type, 'func');
   test.strictEqual(tokens[9].value, 'k');
+  
+  tokens = tree.polishNotation(new Lexer('x + z^2 * a^b').tokens());
+  //x z 2 ^ a b ^ * +
+  test.strictEqual(tokens[0].type, 'literal');
+  test.strictEqual(tokens[0].value, 'x');
+  test.strictEqual(tokens[1].type, 'literal');
+  test.strictEqual(tokens[1].value, 'z');
+  test.strictEqual(tokens[2].type, 'constant');
+  test.strictEqual(tokens[2].value, 2);
+  test.strictEqual(tokens[3].type, 'operator');
+  test.strictEqual(tokens[3].value, '^');
+  test.strictEqual(tokens[4].type, 'literal');
+  test.strictEqual(tokens[4].value, 'a');
+  test.strictEqual(tokens[5].type, 'literal');
+  test.strictEqual(tokens[5].value, 'b');
+  test.strictEqual(tokens[6].type, 'operator');
+  test.strictEqual(tokens[6].value, '^');
+  test.strictEqual(tokens[7].type, 'operator');
+  test.strictEqual(tokens[7].value, '*');
+  test.strictEqual(tokens[8].type, 'operator');
+  test.strictEqual(tokens[8].value, '+');
 
   test.done();
 };
