@@ -11,40 +11,67 @@ ExpressionTree.prototype.parse = function(tokens) {
 };
 
 ExpressionTree.prototype.polishNotation = function(tokens) {
-  var getOperationPriority = function(value) {
-    return value == '+' || value == '-' ? 1 :
-           value == '*' || value == '/' || value == '%' ? 2 :
-           -1;
-  };
-  var result = [],
-      stack = [];
-  for(var i in tokens) {
-    if(tokens[i].type === 'complex' || 
-       tokens[i].type === 'constant' || 
-       tokens[i].type === 'literal')
+  function getOperationPriority(value) {
+    if(value === '+' || value === '-') {
+      return 1;
+    }
+    
+    if(value === '*' || value === '/') {
+      return 2;
+    }
+    
+    if(value === '^') {
+      return 3;
+    }
+    
+    return -1;
+  }
+  
+  var result  = [],
+      stack   = [],
+      i;
+  
+  for(i = 0; i < tokens.length; ++i) {
+    if(['complex', 'constant', 'literal'].indexOf(tokens[i].type) !== -1) {
       result.push(tokens[i]);
+    }
+    
     else if(tokens[i].type === 'operator') {
-      while(stack.length > 0 && 
-            getOperationPriority(tokens[i].value) <= getOperationPriority(stack[stack.length - 1].value))
+      while(stack.length > 0 && getOperationPriority(tokens[i].value) <= getOperationPriority(stack[stack.length - 1].value)) {
         result.push(stack.pop());
+      }
+      
       stack.push(tokens[i]);
     }
+    
+    else if(tokens[i].type === 'func') {
+      stack.push(tokens[i]);
+    }
+    
     else if(tokens[i].type === 'bracket') {
-      if(tokens[i].value === '(')
+      if(tokens[i].value === '(') {
         stack.push(tokens[i]);
+      }
+      
       else if(tokens[i].value === ')') {
-        while(stack[stack.length - 1].type !== 'bracket' && 
-            stack[stack.length - 1].value !== ')')
-        if(stack[stack.length - 1].type !== 'bracket')
+        while(!/bracket|func/.test(stack[stack.length - 1].type) && stack[stack.length - 1].value !== ')') {
           result.push(stack.pop());
-        //else
-        //  stack.pop();
-      stack.pop();
+        }
+        
+        if(stack[stack.length - 1].type === 'func') {
+          result.push(stack.pop());
+        }
+        else {
+          stack.pop();
+        }
       }
     }
   }
-  while(stack.length > 0)
+  
+  while(stack.length > 0) {
     result.push(stack.pop());
+  }
+  
   return result;
 };
 
@@ -53,7 +80,11 @@ ExpressionTree.prototype.checkBrackets = function(tokens) {
       i;
   
   for(i = 0; i < tokens.length; ++i) {
-    if(tokens[i].type === 'bracket') {
+    if(tokens[i].type === 'func') {
+      ++depth;
+    }
+    
+    else if(tokens[i].type === 'bracket') {
       if(tokens[i].value === '[' || tokens[i].value === '(') {
         ++depth;
         tokens[i].value = '(';

@@ -101,6 +101,29 @@ module.exports.polishNotation = function(test) {
   test.strictEqual(tokens[5].value, '*');
   test.strictEqual(tokens[6].type, 'operator');
   test.strictEqual(tokens[6].value, '+');
+  
+  tokens = tree.polishNotation(new Lexer('k(x + f(x(a + b)) + 5)').tokens());
+  //x a b + x() f() + 5 + k()
+  test.strictEqual(tokens[0].type, 'literal');
+  test.strictEqual(tokens[0].value, 'x');
+  test.strictEqual(tokens[1].type, 'literal');
+  test.strictEqual(tokens[1].value, 'a');
+  test.strictEqual(tokens[2].type, 'literal');
+  test.strictEqual(tokens[2].value, 'b');
+  test.strictEqual(tokens[3].type, 'operator');
+  test.strictEqual(tokens[3].value, '+');
+  test.strictEqual(tokens[4].type, 'func');
+  test.strictEqual(tokens[4].value, 'x');
+  test.strictEqual(tokens[5].type, 'func');
+  test.strictEqual(tokens[5].value, 'f');
+  test.strictEqual(tokens[6].type, 'operator');
+  test.strictEqual(tokens[6].value, '+');
+  test.strictEqual(tokens[7].type, 'constant');
+  test.strictEqual(tokens[7].value, 5);
+  test.strictEqual(tokens[8].type, 'operator');
+  test.strictEqual(tokens[8].value, '+');
+  test.strictEqual(tokens[9].type, 'func');
+  test.strictEqual(tokens[9].value, 'k');
 
   test.done();
 };

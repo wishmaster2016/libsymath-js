@@ -128,10 +128,20 @@ Lexer.prototype.getTokenType = function(token) {
 
 Lexer.prototype.tokens = function() {
   var result = [],
-      token = this.getNextToken();
+      token = this.getNextToken(),
+      currentType,
+      previousType;
   
   while(token) {
-    result.push(this.getTokenType(token));
+    currentType = this.getTokenType(token);
+    
+    if(currentType.type === 'bracket' && previousType && previousType.type === 'literal' && ['(', '['].indexOf(currentType.value) !== -1) {
+      result[result.length - 1].type = 'func';
+    } else {
+      result.push(currentType);
+    }
+
+    previousType = currentType;
     token = this.getNextToken();
   }
   
