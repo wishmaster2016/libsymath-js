@@ -155,15 +155,18 @@ module.exports.polishNotation = function(test) {
   test.done();
 };
 
-module.exports.parse = {
+module.exports.binaryTree = {
   
   invalid: function(test) {
     test.throws(function() {
-      var tree = new ExpressionTree(),
-          tokens = new Lexer('a + b * (c + d))').tokens();
-      
-      tree.parse(tokens);
+      var tree = new ExpressionTree('a + b * (c + d))');
     }, SyntaxError);
+    
+    test.done();
+  },
+  
+  simple: function(test) {
+    var tree = new ExpressionTree('a + b * (c + d)');
     
     test.done();
   }

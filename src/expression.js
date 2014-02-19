@@ -1,14 +1,21 @@
-/*jslint white: true, node: true, plusplus: true, vars: true */
+/*jslint white: true, node: true, plusplus: true, vars: true, nomen: true */
 /*global module */
 'use strict';
 
-function ExpressionTree() { }
+var Lexer = require('./lexer'),
+    Node  = require('./tree').Node,
+    Leaf  = require('./tree').Leaf;
 
-ExpressionTree.prototype.parse = function(tokens) {
-  if(!this.checkBrackets(tokens)) {
-    throw new SyntaxError('expression error: brackets count mismatch!');
+function ExpressionTree(expressionString) {
+  if(!expressionString) {
+    return;
   }
-};
+  
+  var tokens = new Lexer(expressionString).tokens();
+  
+  this.privateRoot_ = undefined;
+  this.buildBinaryExpressionTree(tokens);
+}
 
 ExpressionTree.prototype.polishNotation = function(tokens) {
   function getOperationPriority(value) {
@@ -98,6 +105,48 @@ ExpressionTree.prototype.checkBrackets = function(tokens) {
   }
   
   return depth === 0;
+};
+
+ExpressionTree.prototype.buildBinaryExpressionTree = function(tokens) {
+  if(!this.checkBrackets(tokens)) {
+    throw new SyntaxError('expression error: brackets count mismatch!');
+  }
+  
+  var rawExpression = this.polishNotation(tokens),
+      i = 0,
+      buffer = [];
+  
+  while(i < rawExpression.length) {
+    var args = [],
+        head;
+    
+    args.push(new Leaf(rawExpression[i++]));
+    
+    if(rawExpression[i].type !== 'func') {
+      args.push(new Leaf(rawExpression[i++]));
+      head = rawExpression[i++];
+    } else {
+      head = rawExpression[i++];
+    }
+    
+    buffer.push(new Node(head, args));
+    
+    if(buffer.length === 2) {
+      buffer = [ new Node(rawExpression[i++], buffer) ];
+    } else {
+      buffer.push(new Node(args, head));
+    }
+  }
+  
+  if(buffer.length !== 1) {
+    throw 'TODO';
+  }
+  
+  this.privateRoot_ = buffer[0];
+};
+
+ExpressionTree.prototype.getRoot = function() {
+  return this.privateRoot_;
 };
 
 module.exports = ExpressionTree;
