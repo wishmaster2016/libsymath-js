@@ -6,7 +6,7 @@ var Lexer = require('..').Lexer;
 
 module.exports.getNextToken = {
   
-  simple: function(test) {
+  general: function(test) {
     var string = 'aaaa + бб   1(([ 2a',
         instance = new Lexer(string);
     
@@ -115,7 +115,7 @@ module.exports.getNextToken = {
 
 module.exports.getTokenType = {
   
-  simple: function(test) {
+  general: function(test) {
     var string = 'aaaa + бб   11 ((] ++ 2a',
         instance = new Lexer(string);
     
@@ -223,10 +223,10 @@ module.exports.getTokenType = {
 };
 
 module.exports.tokens = function(test) {
-  var string = '((11 + 22i) / 55) * a',
+  var string = '((11 + 22i) / 55) * a + f(x(5 + a))',
       tokens = new Lexer(string).tokens();
   
-  test.strictEqual(tokens.length, 11);
+  test.strictEqual(tokens.length, 19);
   test.strictEqual(tokens[0].type, 'bracket');
   test.strictEqual(tokens[1].type, 'bracket');
   test.strictEqual(tokens[2].type, 'constant');
@@ -238,6 +238,14 @@ module.exports.tokens = function(test) {
   test.strictEqual(tokens[8].type, 'bracket');
   test.strictEqual(tokens[9].type, 'operator');
   test.strictEqual(tokens[10].type, 'literal');
+  test.strictEqual(tokens[11].type, 'operator');
+  test.strictEqual(tokens[12].type, 'func');
+  test.strictEqual(tokens[13].type, 'func');
+  test.strictEqual(tokens[14].type, 'constant');
+  test.strictEqual(tokens[15].type, 'operator');
+  test.strictEqual(tokens[16].type, 'literal');
+  test.strictEqual(tokens[17].type, 'bracket');
+  test.strictEqual(tokens[18].type, 'bracket');
   
   test.done();
 };

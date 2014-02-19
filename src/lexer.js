@@ -14,7 +14,7 @@ var WHITESPACE  = /\s/,
     NUMBER      = /^(\d*\.\d+|\d+)$/,
     S_LETTER    = /[a-zа-я]/,
     LITERAL     = /^[a-zа-я]+\d*$/,
-    OPERATOR    = /^(\+|\-|\*|\/)$/,
+    OPERATOR    = /^(\+|\-|\*|\/|\^)$/,
     S_BRACKET   = /(\(|\[|\]|\))/,
     BRACKET     = /^(\(|\[|\]|\))$/;
 
@@ -31,6 +31,10 @@ Lexer.prototype.getNextToken = function() {
   
   var start = this.offset;
   
+  if(OPERATOR.test(this.buffer[this.offset]) && !OPERATOR.test(this.buffer[this.offset + 1])) {
+    ++this.offset;
+  }
+  else
   if(S_DIGIT.test(this.buffer[this.offset])) {
     while(this.offset < length && (S_COMPLEX_DIGIT.test(this.buffer[this.offset]) || S_LETTER.test(this.buffer[this.offset]))) {
       ++this.offset;
@@ -128,10 +132,20 @@ Lexer.prototype.getTokenType = function(token) {
 
 Lexer.prototype.tokens = function() {
   var result = [],
-      token = this.getNextToken();
+      token = this.getNextToken(),
+      currentType,
+      previousType;
   
   while(token) {
-    result.push(this.getTokenType(token));
+    currentType = this.getTokenType(token);
+    
+    if(currentType.type === 'bracket' && previousType && previousType.type === 'literal' && ['(', '['].indexOf(currentType.value) !== -1) {
+      result[result.length - 1].type = 'func';
+    } else {
+      result.push(currentType);
+    }
+
+    previousType = currentType;
     token = this.getNextToken();
   }
   
