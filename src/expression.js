@@ -17,8 +17,8 @@ function ExpressionTree(expressionString) {
   this.buildBinaryExpressionTree(tokens);
 }
 
-ExpressionTree.prototype.polishNotation = function(tokens) {
-  function getOperationPriority(value) {
+ExpressionTree.prototype.reversePolishNotation = function(tokens) {
+  var getOperationPriority = function(value) {
     if(value === '+' || value === '-') {
       return 1;
     }
@@ -32,14 +32,14 @@ ExpressionTree.prototype.polishNotation = function(tokens) {
     }
     
     return -1;
-  }
+  };
   
   var result  = [],
       stack   = [],
       i;
   
   for(i = 0; i < tokens.length; ++i) {
-    if(['complex', 'constant', 'literal'].indexOf(tokens[i].type) !== -1) {
+    if(/complex|constant|literal/.test(tokens[i].type)) {
       result.push(tokens[i]);
     }
     
@@ -82,6 +82,53 @@ ExpressionTree.prototype.polishNotation = function(tokens) {
   return result;
 };
 
+ExpressionTree.prototype.checkReversePolishNotation = function(output) {
+  var stack = [],
+      i, error;
+  
+  //console.log(output);
+  
+  for(i = 0; i < output.length; ++i) {
+    if(/literal|constant|complex/.test(output[i].type)) {
+       stack.push(output[i]);
+    }
+    
+    else if(output[i].type === 'operator') {
+      if(stack.length < 2) {
+        error = new SyntaxError('expression error near `' + output[i].value + '` at ' + (output[i].loc.start + 1));
+        error.loc = output[i].loc;
+        
+        throw error;
+      }
+      
+      stack.shift();
+      stack[0] = undefined;
+    }
+    
+    else if(output[i].type === 'func') {
+      if(stack.length < 1) {
+        error = new SyntaxError('expression error near `' + output[i].value + '` at ' + (output[i].loc.start + 1));
+        error.loc = output[i].loc;
+        
+        throw error;
+      }
+      
+      stack[0] = undefined;
+    }
+  }
+  
+  if(stack.length !== 1) {
+    for(i = 0; i < stack.length; ++i) {
+      if(stack[i]) {
+        error = new SyntaxError('expression error near `' + stack[i].value + '` at ' + (stack[i].loc.start + 1));
+        error.loc = stack[i].loc;
+        
+        throw error;
+      }
+    }
+  }
+};
+
 ExpressionTree.prototype.checkBrackets = function(tokens) {
   var depth = 0,
       i;
@@ -112,10 +159,12 @@ ExpressionTree.prototype.buildBinaryExpressionTree = function(tokens) {
     throw new SyntaxError('expression error: brackets count mismatch!');
   }
   
-  var rawExpression = this.polishNotation(tokens),
+  var rawExpression = this.reversePolishNotation(tokens),
       i, node,
       buffer = [],
       op = /func|operator/;
+  
+  this.checkReversePolishNotation(rawExpression);
   
   for(i = 0; i < rawExpression.length; ++i) {
     if(!op.test(rawExpression[i].type)) {      
@@ -136,10 +185,6 @@ ExpressionTree.prototype.buildBinaryExpressionTree = function(tokens) {
         buffer.push(node);
       }
     }
-  }
-  
-  if(buffer.length !== 1) {
-    throw new Error('SYNTAX_ERROR');
   }
   
   this.privateRoot_ = buffer[0];
