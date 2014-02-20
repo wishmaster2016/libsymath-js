@@ -3,11 +3,12 @@
 'use strict';
 
 function Node(head, childs) {
-  // TODO
+  this.head = head;
+  this.childs = childs;
 }
 
-function Leaf(head, childs) {
-  // TODO
+function Leaf(head) {
+  this.head = head;
 }
 
 module.exports.Node = Node;

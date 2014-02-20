@@ -113,33 +113,33 @@ ExpressionTree.prototype.buildBinaryExpressionTree = function(tokens) {
   }
   
   var rawExpression = this.polishNotation(tokens),
-      i = 0,
-      buffer = [];
+      i, node,
+      buffer = [],
+      op = /func|operator/;
   
-  while(i < rawExpression.length) {
-    var args = [],
-        head;
-    
-    args.push(new Leaf(rawExpression[i++]));
-    
-    if(rawExpression[i].type !== 'func') {
-      args.push(new Leaf(rawExpression[i++]));
-      head = rawExpression[i++];
-    } else {
-      head = rawExpression[i++];
+  for(i = 0; i < rawExpression.length; ++i) {
+    if(!op.test(rawExpression[i].type)) {      
+      buffer.push(new Leaf(rawExpression[i]));
     }
     
-    buffer.push(new Node(head, args));
-    
-    if(buffer.length === 2) {
-      buffer = [ new Node(rawExpression[i++], buffer) ];
-    } else {
-      buffer.push(new Node(args, head));
+    else {
+      if(rawExpression[i].type === 'func') {
+        node = new Node(rawExpression[i], buffer.slice(buffer.length - 1));
+        buffer.pop();
+        buffer.push(node);
+      }
+      
+      else {
+        node = new Node(rawExpression[i], buffer.slice(buffer.length - 2));
+        buffer.pop();
+        buffer.pop();
+        buffer.push(node);
+      }
     }
   }
   
   if(buffer.length !== 1) {
-    throw 'TODO';
+    throw new Error('SYNTAX_ERROR');
   }
   
   this.privateRoot_ = buffer[0];
