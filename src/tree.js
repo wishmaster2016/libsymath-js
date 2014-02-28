@@ -7,7 +7,7 @@ function Node(head, childs) {
   this.childs = childs;
 }
 
-function Leaf(head) {
+function Leaf(head) {віваваівав
   this.head = head;
 }
 
